@@ -1,0 +1,41 @@
+/**
+ * These arguments were used when this file was generated. They will be automatically applied on subsequent loads
+ * via the GUI or CLI. Run CLI with '--help' for additional information on how to override these arguments.
+ * @cliArgs --board "/boards/LAUNCHXL_F28379D" --device "F2837xD" --part "F2837xD_337ZWT" --package "F2837xD_337ZWT" --context "CPU1" --product "C2000WARE@26.00.00.00"
+ * @v2CliArgs --board "/boards/LAUNCHXL_F28379D" --device "TMS320F28379D" --package "337ZWT" --context "CPU1" --product "C2000WARE@26.00.00.00"
+ * @versions {"tool":"1.27.0+4565"}
+ */
+
+/**
+ * Import the modules used in this configuration.
+ */
+const cla       = scripting.addModule("/driverlib/cla.js", {}, false);
+const cla1      = cla.addInstance();
+const cputimer  = scripting.addModule("/driverlib/cputimer.js", {}, false);
+const cputimer1 = cputimer.addInstance();
+const dac       = scripting.addModule("/driverlib/dac.js", {}, false);
+const dac1      = dac.addInstance();
+
+/**
+ * Write custom configuration values to the imported modules.
+ */
+cla1.$name             = "myCLA0";
+cla1.enable_CLA_TASK_2 = false;
+cla1.enable_CLA_TASK_3 = false;
+cla1.enable_CLA_TASK_4 = false;
+cla1.enable_CLA_TASK_6 = false;
+cla1.enable_CLA_TASK_7 = false;
+cla1.enable_CLA_TASK_5 = false;
+
+cputimer1.$name                    = "myCPUTIMER0";
+cputimer1.startTimer               = true;
+cputimer1.enableInterrupt          = true;
+cputimer1.emulationMode            = "CPUTIMER_EMULATIONMODE_RUNFREE";
+cputimer1.registerInterrupts       = true;
+cputimer1.timerPeriod              = 999;
+cputimer1.timerInt.enableInterrupt = true;
+
+dac1.$name            = "DAC0";
+dac1.enableOutput     = true;
+dac1.dacBase          = "DACB_BASE";
+dac1.referenceVoltage = "DAC_REF_ADC_VREFHI";
