@@ -10,6 +10,7 @@
 
 float erro_z1, erro_z2;
 float res_z1,  res_z2;
+  
 
 __interrupt void Cla1Task8(void)   // limpa as variaveis para tirar overshoot inicial
 {
@@ -21,7 +22,8 @@ __interrupt void Cla1Task8(void)   // limpa as variaveis para tirar overshoot in
 
 __interrupt void Cla1Task1(void)
 {
-    
+
+    hb ++ ;
     float erro = ig_ref - ig;
 
     // integrador ressonante
@@ -39,6 +41,4 @@ __interrupt void Cla1Task1(void)
     // memória
     erro_z2 = erro_z1;  erro_z1 = erro;
     res_z2  = res_z1;   res_z1  = res;
-
-    
 }

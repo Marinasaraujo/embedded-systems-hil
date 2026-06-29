@@ -12,5 +12,6 @@ extern float vg;
 extern float ig;
 extern float ig_ref;
 extern float d;
+extern float hb;
 
 #endif /* SHARED_VARS_H_ */

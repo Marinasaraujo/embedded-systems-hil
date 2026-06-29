@@ -14,17 +14,19 @@ float ig;
 float ig_ref;
 
 #pragma DATA_SECTION(d,"Cla1ToCpuMsgRAM");
+#pragma DATA_SECTION(hb,"Cla1ToCpuMsgRAM");
 float d;
+float hb = 1;
 
 //
 // Definiçoes de Constantes
 //
 #define F_PWM                  20000.0f     // Frequencia de chaveamento (Hz)
-#define T_PWM                  (1.0f / F_PWM) // Periodo de chaveamento (s)
+#define T_PWM                  (1.0f / F_PWM) // Periodo de chaveamento (50 us)
 #define DT_SIM                 0.000001f    // Passo de simulacao (1 us)
 
 // Nesse exemplo temos passo fixo
-#define N_STEPS_PER_CYCLE      (uint32_t)(T_PWM / DT_SIM) // Passos por ciclo PWM
+#define N_STEPS_PER_CYCLE      (uint32_t)(T_PWM / DT_SIM) // Passos por ciclo PWM = 50
 
 // Parametros do Inversor monofasico
 #define VDC                    400.0f       // Tensao de entrada (V)
@@ -35,8 +37,9 @@ float d;
 #define TWO_PI                 6.2831853072f
 #define F_GRID                 60.0f        // Frequencia da rede (Hz)
 #define PN                     2000
-#define VPK                    220*sqrt(2)       // Pico da tensao de rede (~127 Vrms), << VDC
-#define IPK                    (2*PN)/VPK      // Pico da corrente de referencia (A)
+#define SQRT2                  1.4142135f
+#define VPK                    (220.0f * SQRT2)       
+#define IPK                    (2.0f * PN / VPK)    // Pico da corrente de referencia (A)
 
 // Constantes auxiliares (evita divisoes repetidas no loop)
 #define TUSTIN_A ((2.0f * L / DT_SIM) + R)
@@ -58,10 +61,10 @@ volatile bool g1_switch_on = false;           // Estado da chave (true = ligada)
 volatile bool g2_switch_on = false;           // Estado da chave (true = ligada)
 volatile bool g3_switch_on = false;           // Estado da chave (true = ligada)
 volatile bool g4_switch_on = false;           // Estado da chave (true = ligada)
-
+volatile bool wrapped      = false;
 
 //Buffer de visualizaçao dos resultados
-#define TAMBUFFER 100
+#define TAMBUFFER 200
 volatile float buffer_vg[TAMBUFFER];
 volatile float buffer_ig[TAMBUFFER];
 volatile char cnt_buff = 0;
@@ -95,7 +98,6 @@ void main(void)
 __interrupt void INT_myCPUTIMER0_ISR(void)
 {
     float32_t vf, vind_new;
-    bool wrapped = false;
 
     g_theta += TWO_PI * F_GRID * DT_SIM;
     
@@ -109,8 +111,8 @@ __interrupt void INT_myCPUTIMER0_ISR(void)
     // Aqui temos a emulação de uma onda pwm
     // No trabalho o pwm já é gerado pelo periferico epwm
     // Define estado da chave com base na razao ciclica
-    float D = 0.5f * (d + 1.0f);
-    bool on = (g_step_counter < (uint32_t)(D * N_STEPS_PER_CYCLE));
+    float DUTY_CICLE = 0.5f * (d + 1.0f); // [-1, 1] para [0,1]
+    bool on = (g_step_counter < (uint32_t)(DUTY_CICLE * N_STEPS_PER_CYCLE));
     
     g1_switch_on =  on;   g4_switch_on =  on;     
     g2_switch_on = !on;   g3_switch_on = !on;

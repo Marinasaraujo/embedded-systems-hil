@@ -116,6 +116,11 @@
                             </tool>
                         </toolChain>
                     </folderInfo>
+                    <fileInfo id="com.ti.ccstudio.buildDefinitions.C2000.Default.1058698201.main.c" name="main.c" rcbsApplicability="disable" resourcePath="main.c" toolsToInvoke="com.ti.ccstudio.buildDefinitions.C2000_22.6.exe.compilerDebug.997210423.1133238317">
+                        <tool id="com.ti.ccstudio.buildDefinitions.C2000_22.6.exe.compilerDebug.997210423.1133238317" name="C2000 Compiler" superClass="com.ti.ccstudio.buildDefinitions.C2000_22.6.exe.compilerDebug.997210423">
+                            <option id="com.ti.ccstudio.buildDefinitions.C2000_22.6.compilerID.FP_MODE.1748316063" superClass="com.ti.ccstudio.buildDefinitions.C2000_22.6.compilerID.FP_MODE" value="com.ti.ccstudio.buildDefinitions.C2000_22.6.compilerID.FP_MODE.relaxed" valueType="enumerated"/>
+                        </tool>
+                    </fileInfo>
                     <sourceEntries>
                         <entry excluding="device/driverlib|2837xD_FLASH_lnk_cpu1.cmd" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
                     </sourceEntries>

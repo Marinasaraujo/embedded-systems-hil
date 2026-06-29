@@ -15,6 +15,7 @@ const cputimer  = scripting.addModule("/driverlib/cputimer.js", {}, false);
 const cputimer1 = cputimer.addInstance();
 const dac       = scripting.addModule("/driverlib/dac.js", {}, false);
 const dac1      = dac.addInstance();
+const memcfg    = scripting.addModule("/driverlib/memcfg.js");
 
 /**
  * Write custom configuration values to the imported modules.
@@ -39,10 +40,15 @@ cputimer1.startTimer               = true;
 cputimer1.enableInterrupt          = true;
 cputimer1.emulationMode            = "CPUTIMER_EMULATIONMODE_RUNFREE";
 cputimer1.registerInterrupts       = true;
-cputimer1.timerPeriod              = 999;
+cputimer1.timerPeriod              = 199;
 cputimer1.timerInt.enableInterrupt = true;
 
 dac1.$name            = "DAC0";
 dac1.enableOutput     = true;
 dac1.dacBase          = "DACB_BASE";
 dac1.referenceVoltage = "DAC_REF_ADC_VREFHI";
+
+memcfg.config_MEMCFG_SECT_LS1 = "CLA_data";
+memcfg.config_MEMCFG_SECT_LS3 = "CLA_prog";
+memcfg.config_MEMCFG_SECT_LS4 = "CLA_prog";
+memcfg.config_MEMCFG_SECT_LS5 = "CLA_prog";
