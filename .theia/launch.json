@@ -29,6 +29,20 @@
           "C28xx_CPU1"
         ]
       }
+    },
+    {
+      "name": "embedded-systems-hil",
+      "type": "ccs-debug",
+      "request": "launch",
+      "projectInfo": {
+        "name": "embedded-systems-hil",
+        "resourceId": "/embedded-systems-hil"
+      },
+      "launchSettings": {
+        "coresToLoadForProjectLaunch": [
+          "C28xx_CPU1"
+        ]
+      }
     }
   ]
 }
