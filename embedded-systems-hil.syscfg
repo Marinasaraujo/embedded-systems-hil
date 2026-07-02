@@ -9,17 +9,38 @@
 /**
  * Import the modules used in this configuration.
  */
+const adc       = scripting.addModule("/driverlib/adc.js", {}, false);
+const adc1      = adc.addInstance();
 const cla       = scripting.addModule("/driverlib/cla.js", {}, false);
 const cla1      = cla.addInstance();
 const cputimer  = scripting.addModule("/driverlib/cputimer.js", {}, false);
 const cputimer1 = cputimer.addInstance();
 const dac       = scripting.addModule("/driverlib/dac.js", {}, false);
 const dac1      = dac.addInstance();
+const epwm      = scripting.addModule("/driverlib/epwm.js", {}, false);
+const epwm1     = epwm.addInstance();
+const epwm2     = epwm.addInstance();
+const gpio      = scripting.addModule("/driverlib/gpio.js", {}, false);
+const gpio1     = gpio.addInstance();
+const gpio2     = gpio.addInstance();
+const gpio3     = gpio.addInstance();
+const gpio4     = gpio.addInstance();
 const memcfg    = scripting.addModule("/driverlib/memcfg.js");
 
 /**
  * Write custom configuration values to the imported modules.
  */
+adc1.$name                   = "ADC0";
+adc1.adcClockPrescaler       = "ADC_CLK_DIV_4_0";
+adc1.enabledSOCs             = ["ADC_SOC_NUMBER0"];
+adc1.soc0Trigger             = "ADC_TRIGGER_CPU1_TINT0";
+adc1.soc0SampleWindow        = 15;
+adc1.interruptPulseMode      = "ADC_PULSE_END_OF_CONV";
+adc1.enabledInts             = ["ADC_INT_NUMBER1"];
+adc1.enableInterrupt1        = true;
+adc1.registerInterrupts      = ["1"];
+adc1.adcInt1.enableInterrupt = true;
+
 cla1.$name             = "myCLA0";
 cla1.enable_CLA_TASK_2 = false;
 cla1.enable_CLA_TASK_3 = false;
@@ -48,7 +69,51 @@ dac1.enableOutput     = true;
 dac1.dacBase          = "DACB_BASE";
 dac1.referenceVoltage = "DAC_REF_ADC_VREFHI";
 
+epwm1.$name                         = "myEPWM0";
+epwm1.$hardware                     = system.deviceData.board.components.BP_SITE_1.subComponents.PWM_LOC1;
+epwm1.epwmTimebase_counterMode      = "EPWM_COUNTER_MODE_UP_DOWN";
+epwm1.epwmTimebase_hsClockDiv       = "EPWM_HSCLOCK_DIVIDER_1";
+epwm1.epwmTimebase_period           = 2500;
+epwm1.epwmTimebase_syncOutPulseMode = "EPWM_SYNC_OUT_PULSE_ON_COUNTER_ZERO";
+
+epwm2.$name                             = "myEPWM1";
+epwm2.$hardware                         = system.deviceData.board.components.BP_SITE_1.subComponents.PWM_LOC2;
+epwm2.epwmTimebase_counterMode          = "EPWM_COUNTER_MODE_UP_DOWN";
+epwm2.epwmTimebase_hsClockDiv           = "EPWM_HSCLOCK_DIVIDER_1";
+epwm2.epwmTimebase_period               = 2500;
+epwm2.epwmTimebase_phaseEnable          = true;
+epwm2.epwmTimebase_counterModeAfterSync = "EPWM_COUNT_MODE_UP_AFTER_SYNC";
+epwm2.epwmTimebase_syncOutPulseMode     = "EPWM_SYNC_OUT_PULSE_DISABLED";
+
+gpio1.$name           = "myGPIO0";
+gpio1.padConfig       = "PULLUP";
+gpio1.gpioPin.$assign = "boosterpack1.8";
+
+gpio2.$name           = "myGPIO1";
+gpio2.padConfig       = "PULLUP";
+gpio2.gpioPin.$assign = "boosterpack1.2";
+
+gpio3.$name           = "myGPIO2";
+gpio3.padConfig       = "PULLUP";
+gpio3.gpioPin.$assign = "boosterpack1.5";
+
+gpio4.$name           = "myGPIO3";
+gpio4.padConfig       = "PULLUP";
+gpio4.gpioPin.$assign = "boosterpack1.6";
+
 memcfg.config_MEMCFG_SECT_LS1 = "CLA_data";
 memcfg.config_MEMCFG_SECT_LS3 = "CLA_prog";
 memcfg.config_MEMCFG_SECT_LS4 = "CLA_prog";
 memcfg.config_MEMCFG_SECT_LS5 = "CLA_prog";
+
+/**
+ * Pinmux solution for unlocked pins/peripherals. This ensures that minor changes to the automatic solver in a future
+ * version of the tool will not impact the pinmux you originally saw.  These lines can be completely deleted in order to
+ * re-solve from scratch.
+ */
+epwm1.epwm.$suggestSolution           = "EPWM1";
+epwm1.epwm.epwm_aPin.$suggestSolution = "boosterpack1.40";
+epwm1.epwm.epwm_bPin.$suggestSolution = "boosterpack1.39";
+epwm2.epwm.$suggestSolution           = "EPWM2";
+epwm2.epwm.epwm_aPin.$suggestSolution = "boosterpack1.38";
+epwm2.epwm.epwm_bPin.$suggestSolution = "boosterpack1.37";

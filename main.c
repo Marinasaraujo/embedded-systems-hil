@@ -55,13 +55,11 @@ volatile float32_t g_vind_z1 = 0.0f;          // Memoria vind
 volatile uint32_t g_step_counter = 0;        // Contador de passos dentro do ciclo PWM
 volatile float32_t g_theta = 0.0f;           // Fase unica (rede e referencia)
 
-// Por enquanto tá true ou false mas esses g_switches virão de pinos de gpio reais conectados ao  pwm
-// Teremos então 4 gpios, um para cada chave 
-volatile bool g1_switch_on = false;           // Estado da chave (true = ligada)
-volatile bool g2_switch_on = false;           // Estado da chave (true = ligada)
-volatile bool g3_switch_on = false;           // Estado da chave (true = ligada)
-volatile bool g4_switch_on = false;           // Estado da chave (true = ligada)
-volatile bool wrapped      = false;
+volatile bool g1_switch_on;
+volatile bool g2_switch_on;
+volatile bool g3_switch_on;
+volatile bool g4_switch_on;
+
 
 //Buffer de visualizaçao dos resultados
 #define TAMBUFFER 200
@@ -71,6 +69,7 @@ volatile char cnt_buff = 0;
 //
 // Funçao Principal
 //
+
 void main(void)
 {
 
@@ -88,10 +87,38 @@ void main(void)
     // Loop principal
     while (1)
     {
+
         
     }
 }
 
+__interrupt void xint1ISR(void)
+{
+    g1_switch_on = GPIO_readPin(myGPIO0);
+
+    Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP1);
+}
+
+__interrupt void xint2ISR(void)
+{
+    g2_switch_on = GPIO_readPin(myGPIO1);
+
+    Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP1);
+}
+
+__interrupt void xint3ISR(void)
+{
+    g3_switch_on = GPIO_readPin(myGPIO2);
+
+    Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP1); //group12
+}
+
+__interrupt void xint4ISR(void)
+{
+    g4_switch_on = GPIO_readPin(myGPIO3);
+
+    Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP1);  //group12
+}
 //
 // Interrupçao do Timer (gera novo passo de simulaçao HIL)
 //
@@ -105,28 +132,20 @@ __interrupt void INT_myCPUTIMER0_ISR(void)
         g_theta -= TWO_PI;
     }
         
-    vg     = VPK * sinf(g_theta);
-    ig_ref = IPK * sinf(g_theta);
+    float32_t s = sinf(g_theta);
+    vg     = VPK * s;
+    ig_ref = IPK * s;
     
-    // Aqui temos a emulação de uma onda pwm
-    // No trabalho o pwm já é gerado pelo periferico epwm
-    // Define estado da chave com base na razao ciclica
-    float DUTY_CICLE = 0.5f * (d + 1.0f); // [-1, 1] para [0,1]
-    bool on = (g_step_counter < (uint32_t)(DUTY_CICLE * N_STEPS_PER_CYCLE));
-    
-    g1_switch_on =  on;   g4_switch_on =  on;     
-    g2_switch_on = !on;   g3_switch_on = !on;
 
-    
     // Atualiza contador
     g_step_counter++;
 
     // Reinicia no fim do ciclo PWM
     if (g_step_counter >= N_STEPS_PER_CYCLE){
         g_step_counter = 0;
-        wrapped = true;
+        CLA_forceTasks(myCLA0_BASE, CLA_TASKFLAG_1);
     }
-        
+
 
     // lógica da ponte inversora
     if(g1_switch_on && g4_switch_on){
@@ -144,9 +163,10 @@ __interrupt void INT_myCPUTIMER0_ISR(void)
     // Atualiza a memória
     g_vind_z1 = vind_new;
     ig = ig_new;
-    
-    if (wrapped)
-        CLA_forceTasks(myCLA0_BASE, CLA_TASKFLAG_1);
+
+    // float u = 0.5f*(ig / I_FS) + 0.5f;
+    // if (u < 0.f) u = 0.f; else if (u > 1.f) u = 1.f;
+    // DAC_setShadowValue(DAC0_BASE, (uint16_t)(u*4095.f + 0.5f));
     
     //Gravaçao dos dados para visualizar os resultados
     buffer_vg[cnt_buff] = vg;
@@ -164,18 +184,15 @@ __interrupt void cla1Isr1 () // chamada pela cla quando ela finaliza
 }
 
 
+// Sai pelo DAC da planta e entra pelo ADC na CLA
 
 // // 
 // // Rotina de Interrupção do ADC (Disparada pelo fim da conversão)
 // //
-// __interrupt void INT_ADC0_1_ISR(void)  
-// {
-//     static uint16_t cnt_adc = 0; 
-//     cnt_adc = (cnt_adc + 1) % TAM_BUFFER_ADC;
-//     adc_buffer[cnt_adc] = ADC_readResult(ADC0_RESULT_BASE, ADC0_SOC0);
-//     ADC_clearInterruptStatus(ADC0_BASE, ADC_INT_NUMBER1);
-//     Interrupt_clearACKGroup(INT_ADC0_1_INTERRUPT_ACK_GROUP);
-// }
+__interrupt void INT_ADC0_1_ISR(void)  
+{
+
+}
 
 // // 
 // // Rotina de Interrupção do DAC (Disparada pelo Timer 1)
