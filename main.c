@@ -106,6 +106,8 @@ void main(void)
     Interrupt_enable(INT_XINT4);
 
     CLA_forceTasks(myCLA0_BASE, CLA_TASKFLAG_8); // Roda só uma vez como init das variaveis
+    
+    Interrupt_clearACKGroup(0xFFFFU);
     // Habilita interrupçoes globais
     EINT;
     ERTM;
@@ -215,10 +217,10 @@ __interrupt void cla1Isr1 () // chamada pela cla quando ela finaliza
 // // 
 // // Rotina de Interrupção do ADC (Disparada pelo fim da conversão)
 // //
-__interrupt void INT_ADC0_1_ISR(void)  
-{
+// __interrupt void INT_ADC0_1_ISR(void)  
+// {
 
-}
+// }
 
 // // 
 // // Rotina de Interrupção do DAC (Disparada pelo Timer 1)
