@@ -9,23 +9,28 @@
 /**
  * Import the modules used in this configuration.
  */
-const adc       = scripting.addModule("/driverlib/adc.js", {}, false);
-const adc1      = adc.addInstance();
-const cla       = scripting.addModule("/driverlib/cla.js", {}, false);
-const cla1      = cla.addInstance();
-const cputimer  = scripting.addModule("/driverlib/cputimer.js", {}, false);
-const cputimer1 = cputimer.addInstance();
-const dac       = scripting.addModule("/driverlib/dac.js", {}, false);
-const dac1      = dac.addInstance();
-const epwm      = scripting.addModule("/driverlib/epwm.js", {}, false);
-const epwm1     = epwm.addInstance();
-const epwm2     = epwm.addInstance();
-const gpio      = scripting.addModule("/driverlib/gpio.js", {}, false);
-const gpio1     = gpio.addInstance();
-const gpio2     = gpio.addInstance();
-const gpio3     = gpio.addInstance();
-const gpio4     = gpio.addInstance();
-const memcfg    = scripting.addModule("/driverlib/memcfg.js");
+const adc              = scripting.addModule("/driverlib/adc.js", {}, false);
+const adc1             = adc.addInstance();
+const cla              = scripting.addModule("/driverlib/cla.js", {}, false);
+const cla1             = cla.addInstance();
+const cputimer         = scripting.addModule("/driverlib/cputimer.js", {}, false);
+const cputimer1        = cputimer.addInstance();
+const dac              = scripting.addModule("/driverlib/dac.js", {}, false);
+const dac1             = dac.addInstance();
+const epwm             = scripting.addModule("/driverlib/epwm.js", {}, false);
+const epwm1            = epwm.addInstance();
+const epwm2            = epwm.addInstance();
+const gpio             = scripting.addModule("/driverlib/gpio.js", {}, false);
+const gpio1            = gpio.addInstance();
+const gpio2            = gpio.addInstance();
+const gpio3            = gpio.addInstance();
+const gpio4            = gpio.addInstance();
+const inputxbar_input  = scripting.addModule("/driverlib/inputxbar_input.js", {}, false);
+const inputxbar_input1 = inputxbar_input.addInstance();
+const inputxbar_input2 = inputxbar_input.addInstance();
+const inputxbar_input3 = inputxbar_input.addInstance();
+const inputxbar_input4 = inputxbar_input.addInstance();
+const memcfg           = scripting.addModule("/driverlib/memcfg.js");
 
 /**
  * Write custom configuration values to the imported modules.
@@ -69,21 +74,42 @@ dac1.enableOutput     = true;
 dac1.dacBase          = "DACB_BASE";
 dac1.referenceVoltage = "DAC_REF_ADC_VREFHI";
 
-epwm1.$name                         = "myEPWM0";
-epwm1.$hardware                     = system.deviceData.board.components.BP_SITE_1.subComponents.PWM_LOC1;
-epwm1.epwmTimebase_counterMode      = "EPWM_COUNTER_MODE_UP_DOWN";
-epwm1.epwmTimebase_hsClockDiv       = "EPWM_HSCLOCK_DIVIDER_1";
-epwm1.epwmTimebase_period           = 2500;
-epwm1.epwmTimebase_syncOutPulseMode = "EPWM_SYNC_OUT_PULSE_ON_COUNTER_ZERO";
+epwm1.$name                                                      = "myEPWM0";
+epwm1.$hardware                                                  = system.deviceData.board.components.BP_SITE_1.subComponents.PWM_LOC1;
+epwm1.epwmTimebase_counterMode                                   = "EPWM_COUNTER_MODE_UP_DOWN";
+epwm1.epwmTimebase_hsClockDiv                                    = "EPWM_HSCLOCK_DIVIDER_1";
+epwm1.epwmTimebase_period                                        = 2500;
+epwm1.epwmTimebase_syncOutPulseMode                              = "EPWM_SYNC_OUT_PULSE_ON_COUNTER_ZERO";
+epwm1.epwmCounterCompare_cmpA                                    = 1250;
+epwm1.epwmActionQualifier_EPWM_AQ_OUTPUT_A_shadowMode            = true;
+epwm1.epwmActionQualifier_EPWM_AQ_OUTPUT_A_ON_TIMEBASE_UP_CMPA   = "EPWM_AQ_OUTPUT_HIGH";
+epwm1.epwmActionQualifier_EPWM_AQ_OUTPUT_A_ON_TIMEBASE_DOWN_CMPA = "EPWM_AQ_OUTPUT_LOW";
+epwm1.epwmDeadband_polarityFED                                   = "EPWM_DB_POLARITY_ACTIVE_LOW";
+epwm1.epwmDeadband_enableFED                                     = true;
+epwm1.epwmDeadband_enableRED                                     = true;
+epwm1.epwmDeadband_delayRED                                      = 20;
+epwm1.epwmDeadband_delayFED                                      = 20;
+epwm1.epwm.$assign                                               = "EPWM1";
+epwm1.epwm.epwm_aPin.$assign                                     = "boosterpack1.40";
+epwm1.epwm.epwm_bPin.$assign                                     = "boosterpack1.39";
 
-epwm2.$name                             = "myEPWM1";
-epwm2.$hardware                         = system.deviceData.board.components.BP_SITE_1.subComponents.PWM_LOC2;
-epwm2.epwmTimebase_counterMode          = "EPWM_COUNTER_MODE_UP_DOWN";
-epwm2.epwmTimebase_hsClockDiv           = "EPWM_HSCLOCK_DIVIDER_1";
-epwm2.epwmTimebase_period               = 2500;
-epwm2.epwmTimebase_phaseEnable          = true;
-epwm2.epwmTimebase_counterModeAfterSync = "EPWM_COUNT_MODE_UP_AFTER_SYNC";
-epwm2.epwmTimebase_syncOutPulseMode     = "EPWM_SYNC_OUT_PULSE_DISABLED";
+epwm2.$name                                                      = "myEPWM1";
+epwm2.$hardware                                                  = system.deviceData.board.components.BP_SITE_1.subComponents.PWM_LOC2;
+epwm2.epwmTimebase_counterMode                                   = "EPWM_COUNTER_MODE_UP_DOWN";
+epwm2.epwmTimebase_hsClockDiv                                    = "EPWM_HSCLOCK_DIVIDER_1";
+epwm2.epwmTimebase_period                                        = 2500;
+epwm2.epwmTimebase_phaseEnable                                   = true;
+epwm2.epwmTimebase_counterModeAfterSync                          = "EPWM_COUNT_MODE_UP_AFTER_SYNC";
+epwm2.epwmTimebase_syncOutPulseMode                              = "EPWM_SYNC_OUT_PULSE_DISABLED";
+epwm2.epwmCounterCompare_cmpA                                    = 1250;
+epwm2.epwmActionQualifier_EPWM_AQ_OUTPUT_A_shadowMode            = true;
+epwm2.epwmActionQualifier_EPWM_AQ_OUTPUT_A_ON_TIMEBASE_UP_CMPA   = "EPWM_AQ_OUTPUT_HIGH";
+epwm2.epwmActionQualifier_EPWM_AQ_OUTPUT_A_ON_TIMEBASE_DOWN_CMPA = "EPWM_AQ_OUTPUT_LOW";
+epwm2.epwmDeadband_polarityFED                                   = "EPWM_DB_POLARITY_ACTIVE_LOW";
+epwm2.epwmDeadband_enableRED                                     = true;
+epwm2.epwmDeadband_enableFED                                     = true;
+epwm2.epwmDeadband_delayRED                                      = 20;
+epwm2.epwmDeadband_delayFED                                      = 20;
 
 gpio1.$name           = "myGPIO0";
 gpio1.padConfig       = "PULLUP";
@@ -101,6 +127,21 @@ gpio4.$name           = "myGPIO3";
 gpio4.padConfig       = "PULLUP";
 gpio4.gpioPin.$assign = "boosterpack1.6";
 
+inputxbar_input1.$name         = "myINPUTXBARINPUT0";
+inputxbar_input1.inputxbarGpio = "GPIO22";
+
+inputxbar_input2.$name          = "myINPUTXBARINPUT1";
+inputxbar_input2.inputxbarInput = "XBAR_INPUT2";
+inputxbar_input2.inputxbarGpio  = "GPIO32";
+
+inputxbar_input3.$name          = "myINPUTXBARINPUT2";
+inputxbar_input3.inputxbarInput = "XBAR_INPUT3";
+inputxbar_input3.inputxbarGpio  = "GPIO67";
+
+inputxbar_input4.$name          = "myINPUTXBARINPUT3";
+inputxbar_input4.inputxbarInput = "XBAR_INPUT4";
+inputxbar_input4.inputxbarGpio  = "GPIO111";
+
 memcfg.config_MEMCFG_SECT_LS1 = "CLA_data";
 memcfg.config_MEMCFG_SECT_LS3 = "CLA_prog";
 memcfg.config_MEMCFG_SECT_LS4 = "CLA_prog";
@@ -111,9 +152,6 @@ memcfg.config_MEMCFG_SECT_LS5 = "CLA_prog";
  * version of the tool will not impact the pinmux you originally saw.  These lines can be completely deleted in order to
  * re-solve from scratch.
  */
-epwm1.epwm.$suggestSolution           = "EPWM1";
-epwm1.epwm.epwm_aPin.$suggestSolution = "boosterpack1.40";
-epwm1.epwm.epwm_bPin.$suggestSolution = "boosterpack1.39";
 epwm2.epwm.$suggestSolution           = "EPWM2";
 epwm2.epwm.epwm_aPin.$suggestSolution = "boosterpack1.38";
 epwm2.epwm.epwm_bPin.$suggestSolution = "boosterpack1.37";

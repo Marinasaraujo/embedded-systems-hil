@@ -66,6 +66,12 @@ volatile bool g4_switch_on;
 volatile float buffer_vg[TAMBUFFER];
 volatile float buffer_ig[TAMBUFFER];
 volatile char cnt_buff = 0;
+
+__interrupt void xint1ISR(void);
+__interrupt void xint2ISR(void);
+__interrupt void xint3ISR(void);
+__interrupt void xint4ISR(void);
+
 //
 // Funçao Principal
 //
@@ -78,6 +84,26 @@ void main(void)
     Interrupt_initModule();
     Interrupt_initVectorTable();
     Board_init();
+
+    GPIO_setInterruptType(GPIO_INT_XINT1, GPIO_INT_TYPE_BOTH_EDGES);
+    GPIO_setInterruptType(GPIO_INT_XINT2, GPIO_INT_TYPE_BOTH_EDGES);
+    GPIO_setInterruptType(GPIO_INT_XINT3, GPIO_INT_TYPE_BOTH_EDGES);
+    GPIO_setInterruptType(GPIO_INT_XINT4, GPIO_INT_TYPE_BOTH_EDGES);
+
+    GPIO_enableInterrupt(GPIO_INT_XINT1);
+    GPIO_enableInterrupt(GPIO_INT_XINT2);
+    GPIO_enableInterrupt(GPIO_INT_XINT3);
+    GPIO_enableInterrupt(GPIO_INT_XINT4);
+
+    Interrupt_register(INT_XINT1, &xint1ISR);
+    Interrupt_register(INT_XINT2, &xint2ISR);
+    Interrupt_register(INT_XINT3, &xint3ISR);
+    Interrupt_register(INT_XINT4, &xint4ISR);
+
+    Interrupt_enable(INT_XINT1);
+    Interrupt_enable(INT_XINT2);
+    Interrupt_enable(INT_XINT3);
+    Interrupt_enable(INT_XINT4);
 
     CLA_forceTasks(myCLA0_BASE, CLA_TASKFLAG_8); // Roda só uma vez como init das variaveis
     // Habilita interrupçoes globais
@@ -110,14 +136,14 @@ __interrupt void xint3ISR(void)
 {
     g3_switch_on = GPIO_readPin(myGPIO2);
 
-    Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP1); //group12
+    Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP12); //group12
 }
 
 __interrupt void xint4ISR(void)
 {
     g4_switch_on = GPIO_readPin(myGPIO3);
 
-    Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP1);  //group12
+    Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP12);  //group12
 }
 //
 // Interrupçao do Timer (gera novo passo de simulaçao HIL)
