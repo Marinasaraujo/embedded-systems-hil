@@ -41,10 +41,6 @@ float hb = 1;
 #define VPK                    (220.0f * SQRT2)
 #define IPK                    (2.0f * PN / VPK)   // Pico da corrente de referencia (A)
 
-// Oscilador acoplado (substitui g_theta + sinf): rotaçao de fasor unitario
-volatile float32_t COS_W, SIN_W;   // no lugar dos #define
-
-
 
 // Constantes auxiliares (evita divisoes repetidas no loop)
 #define TUSTIN_A ((2.0f * L / DT_SIM) + R)
@@ -56,8 +52,7 @@ float32_t c2 = 1.0f / TUSTIN_A;       // coef das tensões
 //
 // Variaveis Globais da Simulaçao
 //
-volatile float32_t g_osc_sin = 0.0f;      // estado do oscilador: sin(theta)
-volatile float32_t g_osc_cos = 1.0f;      // estado do oscilador: cos(theta)
+volatile float32_t g_theta = 0.0f;         // Fase unica (rede e referencia)
 volatile float32_t g_vind_z1 = 0.0f;      // Memoria vind
 volatile uint32_t  g_step_counter = 0;    // Contador de passos dentro do ciclo PWM
 
@@ -67,8 +62,7 @@ volatile bool g3_switch_on;
 volatile bool g4_switch_on;
 
 //Buffer de visualizaçao dos resultados
-#define TAMBUFFER 200
-volatile float buffer_vg[TAMBUFFER];
+#define TAMBUFFER 100
 volatile float buffer_ig[TAMBUFFER];
 volatile char cnt_buff = 0;
 
@@ -90,9 +84,6 @@ void main(void)
     Interrupt_initModule();
     Interrupt_initVectorTable();
     Board_init();
-
-    COS_W = cosf(TWO_PI * F_GRID * DT_SIM);
-    SIN_W = sinf(TWO_PI * F_GRID * DT_SIM);
 
     GPIO_setInterruptType(GPIO_INT_XINT1, GPIO_INT_TYPE_BOTH_EDGES);
     GPIO_setInterruptType(GPIO_INT_XINT2, GPIO_INT_TYPE_BOTH_EDGES);
@@ -160,11 +151,14 @@ __interrupt void INT_myCPUTIMER0_ISR(void)
 {
     float32_t vf, vind_new;
 
-    // Oscilador acoplado: avança o fasor unitario em w*dt
-    float32_t s = g_osc_sin * COS_W + g_osc_cos * SIN_W;
-    float32_t c = g_osc_cos * COS_W - g_osc_sin * SIN_W;
-    g_osc_sin = s;
-    g_osc_cos = c;
+
+    g_theta += TWO_PI * F_GRID * DT_SIM;
+    
+    if (g_theta >= TWO_PI){
+        g_theta -= TWO_PI;
+    }
+        
+    float32_t s = sinf(g_theta);
 
     vg     = VPK * s;
     ig_ref = IPK * s;
@@ -176,12 +170,6 @@ __interrupt void INT_myCPUTIMER0_ISR(void)
     if (g_step_counter >= N_STEPS_PER_CYCLE){
         g_step_counter = 0;
         CLA_forceTasks(myCLA0_BASE, CLA_TASKFLAG_1);
-
-        // Renormaliza o fasor (1x por ciclo PWM) p/ evitar deriva de amplitude
-        float32_t r2 = g_osc_sin*g_osc_sin + g_osc_cos*g_osc_cos;
-        float32_t k  = 1.5f - 0.5f*r2;   // ~1/sqrt(r2) para r2 proximo de 1
-        g_osc_sin *= k;
-        g_osc_cos *= k;
     }
 
     // Logica da ponte inversora
@@ -202,8 +190,10 @@ __interrupt void INT_myCPUTIMER0_ISR(void)
     g_vind_z1 = vind_new;
     ig = ig_new;
 
+    //
+    // DAC_setShadowValue(DAC0_BASE, (uint16_t)(u*4095.f + 0.5f));
+
     // Gravaçao dos dados para visualizar os resultados
-    buffer_vg[cnt_buff] = vg;
     buffer_ig[cnt_buff] = ig_new;
     cnt_buff = (cnt_buff + 1) % (TAMBUFFER);
 
@@ -219,9 +209,3 @@ __interrupt void cla1Isr1()
     Interrupt_clearACKGroup(INT_myCLA01_INTERRUPT_ACK_GROUP);
 }
 
-//
-// Rotina de Interrupçao do ADC (disparada pelo fim da conversao via TINT0)
-// Por enquanto so limpa os flags — sem os clears o PIE group 1 trava inteiro
-// (timer + XINT1/2), como ja aconteceu. Quando o laço analogico entrar,
-// a leitura do resultado vem aqui.
-//

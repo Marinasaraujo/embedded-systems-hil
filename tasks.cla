@@ -44,8 +44,8 @@ __interrupt void Cla1Task1(void)
     uint16_t cmpa = (uint16_t)((1.0f - duty) * (float)period);
 
 
-    EPWM_setCounterCompareValue(myEPWM0_BASE, EPWM_COUNTER_COMPARE_A, 1250);
-    EPWM_setCounterCompareValue(myEPWM1_BASE, EPWM_COUNTER_COMPARE_A, period - 1250);
+    EPWM_setCounterCompareValue(myEPWM0_BASE, EPWM_COUNTER_COMPARE_A, cmpa);
+    EPWM_setCounterCompareValue(myEPWM1_BASE, EPWM_COUNTER_COMPARE_A, period - cmpa);
 
     // memória
     erro_z2 = erro_z1;  erro_z1 = erro;
