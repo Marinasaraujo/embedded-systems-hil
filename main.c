@@ -66,10 +66,12 @@ volatile bool g3_switch_on;
 volatile bool g4_switch_on;
 
 //Buffer de visualizaçao dos resultados
+#define DECIM 4          // 1 amostra a cada 4 ciclos PWM 
 #define TAMBUFFER 100
 volatile float buffer_ig[TAMBUFFER];
+volatile float buffer_ig_ref[TAMBUFFER];
 volatile char cnt_buff = 0;
-
+volatile uint16_t cnt_decim = 0;
 //
 // Prototipos das ISRs
 //
@@ -166,6 +168,7 @@ __interrupt void INT_myCPUTIMER0_ISR(void)
 
     vg     = VPK * s;
     ig_ref = IPK * s;
+    
 
     // Atualiza contador
     g_step_counter++;
@@ -174,6 +177,15 @@ __interrupt void INT_myCPUTIMER0_ISR(void)
     if (g_step_counter >= N_STEPS_PER_CYCLE){
         g_step_counter = 0;
         ADC_forceSOC(ADC0_BASE, ADC_SOC_NUMBER0);
+        if (++cnt_decim >= DECIM){
+            cnt_decim = 0;
+            buffer_ig[cnt_buff] = ig;
+            buffer_ig_ref[cnt_buff] = ig_ref;
+            cnt_buff++;
+            if (cnt_buff >= TAMBUFFER){
+                cnt_buff = 0;      // captura one shot no buffer
+            }
+        }
     }
 
     // Logica da ponte inversora
@@ -203,9 +215,6 @@ __interrupt void INT_myCPUTIMER0_ISR(void)
     } 
     DAC_setShadowValue(DAC0_BASE, (uint16_t)ig_scaled);
 
-    // Gravaçao dos dados para visualizar os resultados
-    buffer_ig[cnt_buff] = ig_new;
-    cnt_buff = (cnt_buff + 1) % (TAMBUFFER);
 
     // Libera nova interrupçao
     Interrupt_clearACKGroup(INT_myCPUTIMER0_INTERRUPT_ACK_GROUP);
