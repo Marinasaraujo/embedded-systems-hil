@@ -35,30 +35,32 @@ const memcfg           = scripting.addModule("/driverlib/memcfg.js");
 /**
  * Write custom configuration values to the imported modules.
  */
-adc1.$name                   = "ADC0";
-adc1.adcClockPrescaler       = "ADC_CLK_DIV_4_0";
-adc1.enabledSOCs             = ["ADC_SOC_NUMBER0"];
-adc1.soc0SampleWindow        = 15;
-adc1.interruptPulseMode      = "ADC_PULSE_END_OF_CONV";
-adc1.enabledInts             = ["ADC_INT_NUMBER1"];
-adc1.enableInterrupt1        = true;
-adc1.registerInterrupts      = ["1"];
-adc1.adcInt1.enableInterrupt = true;
+adc1.$name                          = "ADC0";
+adc1.adcClockPrescaler              = "ADC_CLK_DIV_4_0";
+adc1.enabledSOCs                    = ["ADC_SOC_NUMBER0"];
+adc1.soc0SampleWindow               = 15;
+adc1.interruptPulseMode             = "ADC_PULSE_END_OF_CONV";
+adc1.enabledInts                    = ["ADC_INT_NUMBER1"];
+adc1.enableInterrupt1               = true;
+adc1.registerInterrupts             = ["1"];
+adc1.useInterrupts                  = false;
+adc1.enableInterrupt1ContinuousMode = true;
 
-cla1.$name             = "myCLA0";
-cla1.enable_CLA_TASK_2 = false;
-cla1.enable_CLA_TASK_3 = false;
-cla1.enable_CLA_TASK_4 = false;
-cla1.enable_CLA_TASK_6 = false;
-cla1.enable_CLA_TASK_7 = false;
-cla1.enable_CLA_TASK_5 = false;
-cla1.cpuint_CLA_TASK_2 = false;
-cla1.cpuint_CLA_TASK_3 = false;
-cla1.cpuint_CLA_TASK_4 = false;
-cla1.cpuint_CLA_TASK_5 = false;
-cla1.cpuint_CLA_TASK_6 = false;
-cla1.cpuint_CLA_TASK_7 = false;
-cla1.cpuint_CLA_TASK_8 = false;
+cla1.$name              = "myCLA0";
+cla1.enable_CLA_TASK_2  = false;
+cla1.enable_CLA_TASK_3  = false;
+cla1.enable_CLA_TASK_4  = false;
+cla1.enable_CLA_TASK_6  = false;
+cla1.enable_CLA_TASK_7  = false;
+cla1.enable_CLA_TASK_5  = false;
+cla1.cpuint_CLA_TASK_2  = false;
+cla1.cpuint_CLA_TASK_3  = false;
+cla1.cpuint_CLA_TASK_4  = false;
+cla1.cpuint_CLA_TASK_5  = false;
+cla1.cpuint_CLA_TASK_6  = false;
+cla1.cpuint_CLA_TASK_7  = false;
+cla1.cpuint_CLA_TASK_8  = false;
+cla1.trigger_CLA_TASK_1 = "CLA_TRIGGER_ADCA1";
 
 cputimer1.$name                    = "myCPUTIMER0";
 cputimer1.startTimer               = true;

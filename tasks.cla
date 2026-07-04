@@ -6,6 +6,8 @@
 #define K1   0.3248f
 #define K2   1.9996f
 #define VDC  400.0f
+#define IG_FS        20.0f
+#define ADC_GAIN     (IG_FS / 2047.0f)   // counts -> A
 
 
 float erro_z1, erro_z2;
@@ -24,7 +26,8 @@ __interrupt void Cla1Task1(void)
 {
 
     hb ++ ;
-    float erro = ig_ref - ig;
+    float32_t ig_meas = ((float32_t)ADC_readResult(ADCARESULT_BASE, ADC_SOC_NUMBER0)- 2048.0f) * ADC_GAIN;
+    float erro = ig_ref - ig_meas;
 
     // integrador ressonante
     float res = K1*erro - K1*erro_z2 + K2*res_z1 - res_z2;

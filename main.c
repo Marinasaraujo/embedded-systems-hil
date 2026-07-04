@@ -7,7 +7,6 @@
 #include <math.h>
 
 #pragma DATA_SECTION(vg,"CpuToCla1MsgRAM"); // aloca a variavel em espaços especificos da memória, definidos no .cmd
-#pragma DATA_SECTION(ig,"CpuToCla1MsgRAM");
 #pragma DATA_SECTION(ig_ref,"CpuToCla1MsgRAM");
 float vg;
 float ig;
@@ -41,6 +40,11 @@ float hb = 1;
 #define VPK                    (220.0f * SQRT2)
 #define IPK                    (2.0f * PN / VPK)   // Pico da corrente de referencia (A)
 
+// Escalonamento da corrente
+#define IG_FS        20.0f
+#define DAC_GAIN     (2047.0f / IG_FS)   // A -> counts
+#define ADC_GAIN     (IG_FS / 2047.0f)   // counts -> A
+#define DAC_OFFSET   2048.0f
 
 // Constantes auxiliares (evita divisoes repetidas no loop)
 #define TUSTIN_A ((2.0f * L / DT_SIM) + R)
@@ -169,7 +173,7 @@ __interrupt void INT_myCPUTIMER0_ISR(void)
     // Reinicia no fim do ciclo PWM
     if (g_step_counter >= N_STEPS_PER_CYCLE){
         g_step_counter = 0;
-        CLA_forceTasks(myCLA0_BASE, CLA_TASKFLAG_1);
+        ADC_forceSOC(ADC0_BASE, ADC_SOC_NUMBER0);
     }
 
     // Logica da ponte inversora
@@ -190,8 +194,14 @@ __interrupt void INT_myCPUTIMER0_ISR(void)
     g_vind_z1 = vind_new;
     ig = ig_new;
 
-    //
-    // DAC_setShadowValue(DAC0_BASE, (uint16_t)(u*4095.f + 0.5f));
+    float32_t ig_scaled = DAC_OFFSET + ig_new * DAC_GAIN;
+    if (ig_scaled < 0.0f){
+        ig_scaled = 0.0f;
+    }   
+    if (ig_scaled > 4095.0f){
+        ig_scaled = 4095.0f;
+    } 
+    DAC_setShadowValue(DAC0_BASE, (uint16_t)ig_scaled);
 
     // Gravaçao dos dados para visualizar os resultados
     buffer_ig[cnt_buff] = ig_new;
