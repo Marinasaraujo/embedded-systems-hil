@@ -51,7 +51,7 @@ cputimer1.startTimer               = true;
 cputimer1.enableInterrupt          = true;
 cputimer1.emulationMode            = "CPUTIMER_EMULATIONMODE_RUNFREE";
 cputimer1.registerInterrupts       = true;
-cputimer1.timerPeriod              = 199;
+cputimer1.timerPeriod              = 399;
 cputimer1.timerInt.enableInterrupt = true;
 
 epwm1.$name                                                      = "myEPWM0";
